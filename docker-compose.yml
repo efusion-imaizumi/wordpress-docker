@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  app:
+    build: ./Dockerfiles/wordpress
+    volumes:
+      - ./:/var/www/html
+      - ./Dockerfiles/php/.htpasswd:/var/www/.htpasswd
+    ports:
+      - 8083:80
+      - 10443:443
+    links:
+      - mysql
+    depends_on:
+      - mysql
+  mysql:
+    image: mysql:5.6
+    environment:
+      MYSQL_DATABASE: local_db
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - 13306:3306
+  phpmyadmin_gskaim:
+    image: phpmyadmin/phpmyadmin:4.7
+    container_name: phpmyadmin_gskaim
+    ports:
+      - 8082:80
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_DB_ENGINE=mysql
+      - PMA_HOST= db
+      - PMA_VERBOSE= local_db
+      - PMA_PORT= 3306
+    depends_on:
+      - mysql
+
+volumes:
+  mysql_data:
+    driver: local
